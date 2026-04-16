@@ -105,11 +105,17 @@ export default function Index() {
 
   const handleImageClick = useCallback((img: TravelImageSet) => {
     if (isLoading) return;
-    const dest = (t as unknown as Record<string, string>)[img.destination] ?? img.destination;
-    const category = (t as unknown as Record<string, string>)[img.label] ?? img.label;
-    const question = `${dest}${t.appTitle ? "的" : " "}${category}`;
-    handleSend(question);
-  }, [isLoading, t]);
+    const tr = t as unknown as Record<string, string>;
+    const dest = tr[img.destination] ?? img.destination;
+    const category = tr[img.label] ?? img.label;
+    // Build natural question per locale
+    const questions: Record<string, string> = {
+      en: `Recommend ${category.toLowerCase()} in ${dest}`,
+      zh: `推荐${dest}的${category}`,
+      ja: `${dest}の${category}をおすすめしてください`,
+    };
+    handleSend(questions[locale] ?? questions.en);
+  }, [isLoading, t, locale]);
 
   const handleClear = () => {
     setMessages([makeWelcome(t.welcomeMessage)]);
