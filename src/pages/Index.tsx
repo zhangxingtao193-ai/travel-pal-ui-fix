@@ -18,7 +18,7 @@ function makeWelcome(msg: string): ChatMessage {
 
 export default function Index() {
   const theme = useTheme();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const [messages, setMessages] = useState<ChatMessage[]>([makeWelcome(t.welcomeMessage)]);
   const [isLoading, setIsLoading] = useState(false);
