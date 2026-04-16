@@ -31,6 +31,8 @@ interface Translations {
   nightlife: string;
   demoConversation: string;
   amount: string;
+  hongKong: string;
+  tokyo: string;
 }
 
 const translations: Record<UILocale, Translations> = {
