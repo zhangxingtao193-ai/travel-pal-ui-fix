@@ -16,12 +16,28 @@ const CITIES = [
   { key: "tokyo", lat: 35.6762, lon: 139.6503 },
 ];
 
-const WMO_DESC: Record<number, string> = {
-  0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
-  45: "Fog", 48: "Rime fog", 51: "Light drizzle", 53: "Drizzle", 55: "Dense drizzle",
-  61: "Light rain", 63: "Rain", 65: "Heavy rain", 71: "Light snow", 73: "Snow",
-  75: "Heavy snow", 80: "Light showers", 81: "Showers", 82: "Heavy showers",
-  95: "Thunderstorm", 96: "Thunderstorm w/ hail", 99: "Severe thunderstorm",
+const WMO_DESC: Record<string, Record<number, string>> = {
+  en: {
+    0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+    45: "Fog", 48: "Rime fog", 51: "Light drizzle", 53: "Drizzle", 55: "Dense drizzle",
+    61: "Light rain", 63: "Rain", 65: "Heavy rain", 71: "Light snow", 73: "Snow",
+    75: "Heavy snow", 80: "Light showers", 81: "Showers", 82: "Heavy showers",
+    95: "Thunderstorm", 96: "Thunderstorm w/ hail", 99: "Severe thunderstorm",
+  },
+  zh: {
+    0: "晴朗", 1: "大部晴朗", 2: "多云", 3: "阴天",
+    45: "雾", 48: "雾凇", 51: "小毛毛雨", 53: "毛毛雨", 55: "浓毛毛雨",
+    61: "小雨", 63: "中雨", 65: "大雨", 71: "小雪", 73: "中雪",
+    75: "大雪", 80: "小阵雨", 81: "阵雨", 82: "大阵雨",
+    95: "雷暴", 96: "雷暴伴冰雹", 99: "强雷暴",
+  },
+  ja: {
+    0: "快晴", 1: "おおむね晴れ", 2: "一部曇り", 3: "曇り",
+    45: "霧", 48: "着氷性の霧", 51: "弱い霧雨", 53: "霧雨", 55: "強い霧雨",
+    61: "小雨", 63: "雨", 65: "大雨", 71: "小雪", 73: "雪",
+    75: "大雪", 80: "弱いにわか雨", 81: "にわか雨", 82: "強いにわか雨",
+    95: "雷雨", 96: "雹を伴う雷雨", 99: "激しい雷雨",
+  },
 };
 
 export default function WeatherWidget() {
