@@ -4,35 +4,25 @@ import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 
 interface WeatherData {
-  city: string;
-  temp_c: string;
-  temp_f: string;
-  desc: string;
-  humidity: string;
-  wind: string;
+  cityKey: string;
+  temp_c: number;
+  humidity: number;
+  wind: number;
+  weatherCode: number;
 }
 
-const CITIES = ["Hong Kong", "Tokyo"];
+const CITIES = [
+  { key: "hongKong", lat: 22.3193, lon: 114.1694 },
+  { key: "tokyo", lat: 35.6762, lon: 139.6503 },
+];
 
-async function fetchWeather(city: string): Promise<WeatherData | null> {
-  try {
-    const resp = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`);
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    const c = data.current_condition?.[0];
-    if (!c) return null;
-    return {
-      city,
-      temp_c: c.temp_C,
-      temp_f: c.temp_F,
-      desc: c.weatherDesc?.[0]?.value ?? "N/A",
-      humidity: c.humidity,
-      wind: c.windspeedKmph,
-    };
-  } catch {
-    return null;
-  }
-}
+const WMO_DESC: Record<number, string> = {
+  0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+  45: "Fog", 48: "Rime fog", 51: "Light drizzle", 53: "Drizzle", 55: "Dense drizzle",
+  61: "Light rain", 63: "Rain", 65: "Heavy rain", 71: "Light snow", 73: "Snow",
+  75: "Heavy snow", 80: "Light showers", 81: "Showers", 82: "Heavy showers",
+  95: "Thunderstorm", 96: "Thunderstorm w/ hail", 99: "Severe thunderstorm",
+};
 
 export default function WeatherWidget() {
   const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
@@ -42,9 +32,28 @@ export default function WeatherWidget() {
 
   const refresh = async () => {
     setLoading(true);
-    const results = await Promise.all(CITIES.map(fetchWeather));
-    setWeatherData(results.filter(Boolean) as WeatherData[]);
-    setLastUpdated(new Date());
+    try {
+      const results = await Promise.all(
+        CITIES.map(async (city) => {
+          const resp = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code`
+          );
+          if (!resp.ok) return null;
+          const data = await resp.json();
+          const c = data.current;
+          if (!c) return null;
+          return {
+            cityKey: city.key,
+            temp_c: Math.round(c.temperature_2m),
+            humidity: c.relative_humidity_2m,
+            wind: Math.round(c.wind_speed_10m),
+            weatherCode: c.weather_code,
+          } as WeatherData;
+        })
+      );
+      setWeatherData(results.filter(Boolean) as WeatherData[]);
+      setLastUpdated(new Date());
+    } catch { /* keep existing */ }
     setLoading(false);
   };
 
@@ -79,14 +88,16 @@ export default function WeatherWidget() {
       ) : (
         <div className="space-y-2">
           {weatherData.map((w) => {
-            const cityMap: Record<string, string> = { "Hong Kong": t.hongKong, "Tokyo": t.tokyo };
+            const cityName = (t as unknown as Record<string, string>)[w.cityKey] ?? w.cityKey;
             return (
-              <div key={w.city} className="bg-sidebar-accent/30 rounded-lg p-2.5">
+              <div key={w.cityKey} className="bg-sidebar-accent/30 rounded-lg p-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium">{cityMap[w.city] ?? w.city}</span>
+                  <span className="text-xs font-medium">{cityName}</span>
                   <span className="text-xs font-bold text-sidebar-primary">{w.temp_c}°C</span>
                 </div>
-                <p className="text-[10px] text-sidebar-foreground/60 mt-0.5">{w.desc}</p>
+                <p className="text-[10px] text-sidebar-foreground/60 mt-0.5">
+                  {WMO_DESC[w.weatherCode] ?? "N/A"}
+                </p>
                 <div className="flex items-center gap-3 mt-1 text-[10px] text-sidebar-foreground/50">
                   <span className="flex items-center gap-0.5"><Droplets className="w-2.5 h-2.5" /> {w.humidity}%</span>
                   <span className="flex items-center gap-0.5"><Wind className="w-2.5 h-2.5" /> {w.wind} km/h</span>
