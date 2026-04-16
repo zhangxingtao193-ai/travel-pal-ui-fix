@@ -1,4 +1,4 @@
-import { Volume2 } from "lucide-react";
+import { Volume2, ImageIcon, Loader2 } from "lucide-react";
 import { speakText, detectLanguage } from "@/hooks/useSpeech";
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage } from "@/types/chat";
@@ -29,9 +29,30 @@ export default function ChatBubble({ message, avatarState = "idle" }: Props) {
         ) : (
           <div className="bg-chat-bot text-chat-bot-foreground rounded-2xl rounded-bl-md px-4 py-2.5 text-sm prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{message.content}</ReactMarkdown>
+
+            {/* Image loading indicator */}
+            {message.imageLoading && (
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <ImageIcon className="w-4 h-4" />
+                <span>Generating image...</span>
+              </div>
+            )}
+
+            {/* Generated image */}
+            {message.imageUrl && (
+              <div className="mt-3">
+                <img
+                  src={message.imageUrl}
+                  alt="Travel scene"
+                  className="rounded-lg max-w-full w-full shadow-md"
+                  loading="lazy"
+                />
+              </div>
+            )}
           </div>
         )}
-        {!isUser && (
+        {!isUser && message.content && (
           <button
             onClick={() => speakText(message.content, detectLanguage(message.content))}
             className="mt-2 p-1 rounded hover:bg-foreground/10 transition-colors"
