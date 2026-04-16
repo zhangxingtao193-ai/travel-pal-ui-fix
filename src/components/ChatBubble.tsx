@@ -35,7 +35,7 @@ export default function ChatBubble({ message, avatarState = "idle" }: Props) {
             {message.travelImages && message.travelImages.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1.5 not-prose">
                 {message.travelImages.map((img, i) => {
-                  const localizedLabel = (t as Record<string, unknown>)[img.label] as string ?? img.label;
+                  const localizedLabel = (t as unknown as Record<string, string>)[img.label] ?? img.label;
                   return (
                     <div key={i} className="relative overflow-hidden rounded-md w-[72px] h-[72px] flex-shrink-0">
                       <img
