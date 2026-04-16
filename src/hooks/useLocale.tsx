@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 
 export type UILocale = "en" | "zh" | "ja";
 
@@ -165,20 +165,25 @@ const LocaleContext = createContext<LocaleContextType>({
   t: translations.en,
 });
 
-export function LocaleProvider({ children }: { children: ReactNode }) {
+export function LocaleProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [locale, setLocaleState] = useState<UILocale>(() => {
-    const saved = localStorage.getItem("ui-locale");
+    const saved = getStoredLocale();
     if (saved === "zh" || saved === "ja" || saved === "en") return saved;
     return "en";
   });
 
   const setLocale = useCallback((l: UILocale) => {
     setLocaleState(l);
-    localStorage.setItem("ui-locale", l);
+    setStoredLocale(l);
   }, []);
 
+  const value = useMemo(
+    () => ({ locale, setLocale, t: translations[locale] }),
+    [locale, setLocale]
+  );
+
   return (
-    <LocaleContext.Provider value={{ locale, setLocale, t: translations[locale] }}>
+    <LocaleContext.Provider value={value}>
       {children}
     </LocaleContext.Provider>
   );
@@ -186,4 +191,20 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
 export function useLocale() {
   return useContext(LocaleContext);
+}
+
+function getStoredLocale() {
+  try {
+    return globalThis.localStorage.getItem("ui-locale");
+  } catch {
+    return null;
+  }
+}
+
+function setStoredLocale(locale: UILocale) {
+  try {
+    globalThis.localStorage.setItem("ui-locale", locale);
+  } catch {
+    // Ignore storage failures so UI can still render.
+  }
 }
