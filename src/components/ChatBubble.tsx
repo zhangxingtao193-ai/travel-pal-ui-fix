@@ -1,4 +1,5 @@
-import { Volume2, ImageIcon, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { Volume2, ImageIcon, Loader2, RefreshCw } from "lucide-react";
 import { speakText, detectLanguage } from "@/hooks/useSpeech";
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage } from "@/types/chat";
@@ -7,13 +8,24 @@ import DynamicAvatar from "./DynamicAvatar";
 
 type AvatarState = "idle" | "thinking" | "done";
 
+const IMAGE_STYLES = [
+  { label: "📷 Photo", style: "realistic photography" },
+  { label: "🎨 Watercolor", style: "watercolor painting" },
+  { label: "🖼️ Oil Paint", style: "oil painting, impressionist" },
+  { label: "✏️ Sketch", style: "pencil sketch, detailed line art" },
+  { label: "🌸 Anime", style: "anime style, Studio Ghibli inspired" },
+  { label: "🕹️ Pixel", style: "pixel art, retro game style" },
+];
+
 interface Props {
   message: ChatMessage;
   avatarState?: AvatarState;
+  onRegenImage?: (messageId: string, style: string) => void;
 }
 
-export default function ChatBubble({ message, avatarState = "idle" }: Props) {
+export default function ChatBubble({ message, avatarState = "idle", onRegenImage }: Props) {
   const isUser = message.role === "user";
+  const [showStyles, setShowStyles] = useState(false);
 
   return (
     <div className={cn("flex gap-3 animate-fade-in", isUser ? "flex-row-reverse" : "flex-row")}>
@@ -41,13 +53,41 @@ export default function ChatBubble({ message, avatarState = "idle" }: Props) {
 
             {/* Generated image */}
             {message.imageUrl && (
-              <div className="mt-3">
+              <div className="mt-3 relative group">
                 <img
                   src={message.imageUrl}
                   alt="Travel scene"
                   className="rounded-lg max-w-full w-full shadow-md"
                   loading="lazy"
                 />
+                {/* Regenerate button overlay */}
+                {onRegenImage && !message.imageLoading && (
+                  <button
+                    onClick={() => setShowStyles((v) => !v)}
+                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    title="Regenerate with different style"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Style picker */}
+            {showStyles && onRegenImage && !message.imageLoading && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {IMAGE_STYLES.map((s) => (
+                  <button
+                    key={s.style}
+                    onClick={() => {
+                      setShowStyles(false);
+                      onRegenImage(message.id, s.style);
+                    }}
+                    className="text-[11px] px-2 py-1 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors border border-border"
+                  >
+                    {s.label}
+                  </button>
+                ))}
               </div>
             )}
           </div>

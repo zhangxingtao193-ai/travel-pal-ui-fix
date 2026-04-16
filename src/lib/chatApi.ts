@@ -116,13 +116,11 @@ export async function streamChatMessage(
   }
 }
 
-export async function generateTravelImage(responseText: string): Promise<string | null> {
+export async function generateTravelImage(responseText: string, style?: string): Promise<string | null> {
   if (!IMAGE_URL) return null;
 
   try {
-    // Extract a concise image prompt from the response
     const lines = responseText.split("\n").filter((l) => l.trim());
-    // Find bolded place names or first meaningful line
     const places: string[] = [];
     for (const line of lines) {
       const matches = line.match(/\*\*([^*]+)\*\*/g);
@@ -134,14 +132,15 @@ export async function generateTravelImage(responseText: string): Promise<string 
       }
     }
     
-    // Build a prompt from top mentioned places or fall back to first heading
-    let prompt: string;
+    let subject: string;
     if (places.length > 0) {
-      prompt = places.slice(0, 3).join(", ");
+      subject = places.slice(0, 3).join(", ");
     } else {
       const heading = lines.find((l) => l.startsWith("#"));
-      prompt = heading ? heading.replace(/^#+\s*/, "").replace(/[🇭🇰🇯🇵🌏✈️🗺️🍜🏛️🌿🛍️🌃]/g, "").trim() : "scenic travel destination";
+      subject = heading ? heading.replace(/^#+\s*/, "").replace(/[🇭🇰🇯🇵🌏✈️🗺️🍜🏛️🌿🛍️🌃]/g, "").trim() : "scenic travel destination";
     }
+
+    const prompt = style ? `${subject}, ${style}` : subject;
 
     const resp = await fetch(IMAGE_URL, {
       method: "POST",
