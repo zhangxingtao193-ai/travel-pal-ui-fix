@@ -33,6 +33,7 @@ interface Translations {
   amount: string;
   hongKong: string;
   tokyo: string;
+  currencyNames: Record<string, string>;
 }
 
 const translations: Record<UILocale, Translations> = {
