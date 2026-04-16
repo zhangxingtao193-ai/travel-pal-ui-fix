@@ -42,9 +42,7 @@ export default function ExchangeRateWidget() {
         }))
       );
       setLastUpdated(new Date());
-    } catch {
-      /* keep existing */
-    }
+    } catch { /* keep existing */ }
     setLoading(false);
   };
 
@@ -81,8 +79,8 @@ export default function ExchangeRateWidget() {
       ) : (
         <div className="grid grid-cols-2 gap-1">
           {rates.map((r) => (
-            <div key={r.code} className="flex items-center justify-between bg-sidebar-accent/30 rounded px-2 py-1">
-              <span className="text-[10px]">{r.flag} {r.code}</span>
+            <div key={r.code} className="flex items-center justify-between bg-sidebar-accent/30 rounded px-2 py-1" title={t.currencyNames[r.code] ?? r.code}>
+              <span className="text-[10px]">{r.flag} {t.currencyNames[r.code] ?? r.code}</span>
               <span className="text-[10px] font-mono font-medium text-sidebar-primary">
                 {r.rate < 10 ? r.rate.toFixed(3) : r.rate < 1000 ? r.rate.toFixed(2) : r.rate.toFixed(0)}
               </span>

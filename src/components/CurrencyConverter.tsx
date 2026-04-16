@@ -52,6 +52,8 @@ export default function CurrencyConverter() {
     return val.toFixed(4);
   };
 
+  const getName = (code: string) => t.currencyNames[code] ?? code;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -76,23 +78,23 @@ export default function CurrencyConverter() {
 
         <div className="flex items-center gap-1.5">
           <select value={from} onChange={(e) => setFrom(e.target.value)} className="flex-1 bg-sidebar-accent/30 rounded-md px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-sidebar-primary text-sidebar-foreground appearance-none cursor-pointer">
-            {CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
+            {CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.flag} {getName(c.code)}</option>)}
           </select>
           <button onClick={swap} className="p-1.5 rounded-md hover:bg-sidebar-accent/50 transition-colors" title={t.swapCurrencies}>
             <ArrowUpDown className="w-3.5 h-3.5 text-sidebar-primary" />
           </button>
           <select value={to} onChange={(e) => setTo(e.target.value)} className="flex-1 bg-sidebar-accent/30 rounded-md px-2 py-1.5 text-xs outline-none focus:ring-1 focus:ring-sidebar-primary text-sidebar-foreground appearance-none cursor-pointer">
-            {CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.flag} {c.code}</option>)}
+            {CURRENCIES.map((c) => <option key={c.code} value={c.code}>{c.flag} {getName(c.code)}</option>)}
           </select>
         </div>
 
         {numAmount > 0 && rates[from] && rates[to] && (
           <div className="bg-sidebar-accent/40 rounded-md px-2.5 py-2 text-center">
             <p className="text-[10px] text-sidebar-foreground/50">
-              {CURRENCIES.find((c) => c.code === from)?.flag} {numAmount.toLocaleString()} {from} =
+              {CURRENCIES.find((c) => c.code === from)?.flag} {numAmount.toLocaleString()} {getName(from)} =
             </p>
             <p className="text-sm font-bold text-sidebar-primary font-mono">
-              {CURRENCIES.find((c) => c.code === to)?.flag} {formatResult(converted)} {to}
+              {CURRENCIES.find((c) => c.code === to)?.flag} {formatResult(converted)} {getName(to)}
             </p>
           </div>
         )}
