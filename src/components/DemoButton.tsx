@@ -1,3 +1,4 @@
+import { useLocale } from "@/hooks/useLocale";
 import type { ChatMessage } from "@/types/chat";
 
 const DEMO_MESSAGES: ChatMessage[] = [
@@ -34,12 +35,14 @@ interface Props {
 }
 
 export default function DemoButton({ onDemo }: Props) {
+  const { t } = useLocale();
+
   return (
     <button
       onClick={() => onDemo(DEMO_MESSAGES)}
       className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full font-medium hover:shadow-md transition-all active:scale-95"
     >
-      🎭 Demo
+      🎭 {t.demoConversation}
     </button>
   );
 }

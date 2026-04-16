@@ -8,25 +8,32 @@ import TypingIndicator from "@/components/TypingIndicator";
 import DemoButton from "@/components/DemoButton";
 import { streamChatMessage } from "@/lib/chatApi";
 import { useTheme } from "@/hooks/useTheme";
+import { useLocale } from "@/hooks/useLocale";
 import type { ChatMessage, PreferenceChip } from "@/types/chat";
 
-const WELCOME: ChatMessage = {
-  id: "welcome",
-  role: "assistant",
-  content:
-    "Hello! 👋 I'm **Travel Star**, your AI travel concierge. I specialize in **Hong Kong** 🇭🇰 and **Tokyo** 🇯🇵 but I'm happy to help with any destination!\n\nTry selecting a preference above, or just ask me anything!",
-  timestamp: new Date(),
-};
+function makeWelcome(msg: string): ChatMessage {
+  return { id: "welcome", role: "assistant", content: msg, timestamp: new Date() };
+}
 
 export default function Index() {
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME]);
+  const theme = useTheme();
+  const { t } = useLocale();
+
+  const [messages, setMessages] = useState<ChatMessage[]>([makeWelcome(t.welcomeMessage)]);
   const [isLoading, setIsLoading] = useState(false);
   const [preference, setPreference] = useState<PreferenceChip | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeAssistantId, setActiveAssistantId] = useState<string | null>(null);
   const [doneMessageId, setDoneMessageId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const theme = useTheme();
+
+  // Update welcome message when locale changes
+  useEffect(() => {
+    setMessages((prev) => {
+      const rest = prev.filter((m) => m.id !== "welcome");
+      return [makeWelcome(t.welcomeMessage), ...rest];
+    });
+  }, [t.welcomeMessage]);
 
   const scrollToBottom = useCallback(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -76,20 +83,19 @@ export default function Index() {
         setIsLoading(false);
         setActiveAssistantId(null);
         setDoneMessageId(assistantId);
-        // Clear the "done" smile after 3 seconds
         setTimeout(() => setDoneMessageId(null), 3000);
       }
     );
   };
 
   const handleDemo = (demoMessages: ChatMessage[]) => {
-    setMessages([WELCOME, ...demoMessages]);
+    setMessages([makeWelcome(t.welcomeMessage), ...demoMessages]);
     setDoneMessageId(null);
     setActiveAssistantId(null);
   };
 
   const handleClear = () => {
-    setMessages([WELCOME]);
+    setMessages([makeWelcome(t.welcomeMessage)]);
     setDoneMessageId(null);
     setActiveAssistantId(null);
   };

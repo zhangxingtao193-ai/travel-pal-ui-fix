@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { RefreshCw } from "lucide-react";
+import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 
 interface RateEntry {
@@ -23,6 +24,7 @@ export default function ExchangeRateWidget() {
   const [rates, setRates] = useState<RateEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const { t } = useLocale();
 
   const refresh = async () => {
     setLoading(true);
@@ -40,15 +42,15 @@ export default function ExchangeRateWidget() {
         }))
       );
       setLastUpdated(new Date());
-    } catch (error) {
-      console.error("Failed to fetch exchange rates:", error);
+    } catch {
+      /* keep existing */
     }
     setLoading(false);
   };
 
   useEffect(() => {
     refresh();
-    const interval = setInterval(refresh, 30 * 60 * 1000); // refresh every 30 min
+    const interval = setInterval(refresh, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -56,19 +58,19 @@ export default function ExchangeRateWidget() {
     <div>
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50">
-          💱 Exchange Rates
+          {t.exchangeRates}
         </h3>
         <button
           onClick={refresh}
           disabled={loading}
           className="p-1 rounded hover:bg-sidebar-accent/50 transition-colors"
-          title="Refresh rates"
+          title={t.refreshRates}
         >
           <RefreshCw className={cn("w-3 h-3 text-sidebar-foreground/50", loading && "animate-spin")} />
         </button>
       </div>
 
-      <p className="text-[10px] text-sidebar-foreground/40 mb-1.5">Base: 1 USD 🇺🇸</p>
+      <p className="text-[10px] text-sidebar-foreground/40 mb-1.5">{t.baseCurrency}</p>
 
       {loading && rates.length === 0 ? (
         <div className="space-y-1">
@@ -79,13 +81,8 @@ export default function ExchangeRateWidget() {
       ) : (
         <div className="grid grid-cols-2 gap-1">
           {rates.map((r) => (
-            <div
-              key={r.code}
-              className="flex items-center justify-between bg-sidebar-accent/30 rounded px-2 py-1"
-            >
-              <span className="text-[10px]">
-                {r.flag} {r.code}
-              </span>
+            <div key={r.code} className="flex items-center justify-between bg-sidebar-accent/30 rounded px-2 py-1">
+              <span className="text-[10px]">{r.flag} {r.code}</span>
               <span className="text-[10px] font-mono font-medium text-sidebar-primary">
                 {r.rate < 10 ? r.rate.toFixed(3) : r.rate < 1000 ? r.rate.toFixed(2) : r.rate.toFixed(0)}
               </span>
@@ -96,7 +93,7 @@ export default function ExchangeRateWidget() {
 
       {lastUpdated && (
         <p className="text-[9px] text-sidebar-foreground/30 mt-1.5 text-center">
-          Updated {lastUpdated.toLocaleTimeString()}
+          {t.updated} {lastUpdated.toLocaleTimeString()}
         </p>
       )}
     </div>
