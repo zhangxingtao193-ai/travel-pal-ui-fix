@@ -80,8 +80,9 @@ export default function Index() {
         );
       },
       () => {
-        // Match a built-in image based on content
-        const imageUrl = matchTravelImage(assistantContent) ?? undefined;
+        // Match a built-in image based on user question + bot response
+        const combinedText = text + " " + assistantContent;
+        const imageUrl = matchTravelImage(combinedText) ?? undefined;
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantId ? { ...m, imageUrl } : m
