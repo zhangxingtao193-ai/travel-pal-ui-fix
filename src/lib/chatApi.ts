@@ -8,6 +8,7 @@ const FALLBACK_RESPONSES = [
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const CHAT_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/travel-chat` : null;
+const IMAGE_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/travel-image` : null;
 
 export async function streamChatMessage(
   messages: ChatMessage[],
