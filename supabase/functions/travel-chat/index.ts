@@ -16,7 +16,44 @@ Guidelines:
 - Mention approximate costs when relevant
 - Suggest time-efficient itineraries
 - Consider the user's stated preferences (foodie, culture, nature, shopping, nightlife)
-- Keep responses comprehensive but well-structured`;
+- Keep responses comprehensive but well-structured
+- When discussing weather, use the REAL-TIME WEATHER DATA provided below
+- When discussing costs or currency, use the REAL-TIME EXCHANGE RATES provided below
+- Always mention the data is live/real-time when sharing weather or exchange rate info`;
+
+async function fetchWeather(city: string): Promise<string> {
+  try {
+    const resp = await fetch(`https://wttr.in/${encodeURIComponent(city)}?format=j1`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!resp.ok) return `${city}: unavailable`;
+    const data = await resp.json();
+    const current = data.current_condition?.[0];
+    if (!current) return `${city}: unavailable`;
+    return `${city}: ${current.temp_C}°C (${current.temp_F}°F), ${current.weatherDesc?.[0]?.value ?? "N/A"}, Humidity ${current.humidity}%, Wind ${current.windspeedKmph} km/h ${current.winddir16Point}`;
+  } catch {
+    return `${city}: unavailable`;
+  }
+}
+
+async function fetchExchangeRates(): Promise<string> {
+  try {
+    const resp = await fetch("https://open.er-api.com/v6/latest/USD", {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!resp.ok) return "Exchange rates: unavailable";
+    const data = await resp.json();
+    const rates = data.rates;
+    if (!rates) return "Exchange rates: unavailable";
+    const keys = ["HKD", "JPY", "EUR", "GBP", "CNY", "KRW", "THB", "SGD", "AUD", "TWD", "MYR", "PHP", "IDR", "VND", "INR"];
+    const lines = keys
+      .filter((k) => rates[k])
+      .map((k) => `  1 USD = ${rates[k]} ${k}`);
+    return `Exchange rates (live, base USD):\n${lines.join("\n")}`;
+  } catch {
+    return "Exchange rates: unavailable";
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -30,6 +67,23 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
+    // Detect cities mentioned in last user message for weather lookup
+    const lastUserMsg = [...messages].reverse().find((m: { role: string }) => m.role === "user")?.content?.toLowerCase() ?? "";
+    const weatherCities = ["Hong Kong", "Tokyo", "Singapore", "Bangkok", "Seoul", "Taipei", "Shanghai", "Beijing", "Osaka", "Kyoto"];
+    const mentionedCities = weatherCities.filter(
+      (c) => lastUserMsg.includes(c.toLowerCase())
+    );
+    // Always include HK and Tokyo as defaults
+    const citiesToFetch = [...new Set(["Hong Kong", "Tokyo", ...mentionedCities])];
+
+    // Fetch weather and exchange rates in parallel
+    const [weatherResults, exchangeRates] = await Promise.all([
+      Promise.all(citiesToFetch.map(fetchWeather)),
+      fetchExchangeRates(),
+    ]);
+
+    const liveContext = `\n\n--- REAL-TIME DATA (updated now) ---\n🌤️ Weather:\n${weatherResults.join("\n")}\n\n💱 ${exchangeRates}\n---`;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -39,7 +93,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: SYSTEM_PROMPT + liveContext },
           ...messages,
         ],
         stream: stream ?? true,
