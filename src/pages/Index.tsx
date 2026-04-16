@@ -23,6 +23,8 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
   const [preference, setPreference] = useState<PreferenceChip | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeAssistantId, setActiveAssistantId] = useState<string | null>(null);
+  const [doneMessageId, setDoneMessageId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
 
@@ -31,6 +33,12 @@ export default function Index() {
   }, []);
 
   useEffect(scrollToBottom, [messages, isLoading, scrollToBottom]);
+
+  const getAvatarState = (msgId: string) => {
+    if (msgId === activeAssistantId) return "thinking" as const;
+    if (msgId === doneMessageId) return "done" as const;
+    return "idle" as const;
+  };
 
   const handleSend = async (text: string) => {
     const userMsg: ChatMessage = {
@@ -42,9 +50,11 @@ export default function Index() {
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setIsLoading(true);
+    setDoneMessageId(null);
 
     const assistantId = crypto.randomUUID();
     let assistantContent = "";
+    setActiveAssistantId(assistantId);
 
     setMessages((prev) => [
       ...prev,
@@ -64,26 +74,32 @@ export default function Index() {
       },
       () => {
         setIsLoading(false);
+        setActiveAssistantId(null);
+        setDoneMessageId(assistantId);
+        // Clear the "done" smile after 3 seconds
+        setTimeout(() => setDoneMessageId(null), 3000);
       }
     );
   };
 
   const handleDemo = (demoMessages: ChatMessage[]) => {
     setMessages([WELCOME, ...demoMessages]);
+    setDoneMessageId(null);
+    setActiveAssistantId(null);
   };
 
   const handleClear = () => {
     setMessages([WELCOME]);
+    setDoneMessageId(null);
+    setActiveAssistantId(null);
   };
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      {/* Desktop sidebar */}
       <div className="hidden md:block">
         <ChatSidebar />
       </div>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-30 flex md:hidden">
           <ChatSidebar />
@@ -107,7 +123,11 @@ export default function Index() {
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
           {messages.map((msg) => (
-            <ChatBubble key={msg.id} message={msg} />
+            <ChatBubble
+              key={msg.id}
+              message={msg}
+              avatarState={msg.role === "assistant" ? getAvatarState(msg.id) : "idle"}
+            />
           ))}
           {isLoading && messages[messages.length - 1]?.content === "" && <TypingIndicator />}
         </div>

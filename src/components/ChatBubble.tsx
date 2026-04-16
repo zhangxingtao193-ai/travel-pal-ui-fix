@@ -1,24 +1,24 @@
 import { Volume2 } from "lucide-react";
-import avatarImg from "@/assets/avatar.png";
 import { speakText } from "@/hooks/useSpeech";
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage } from "@/types/chat";
 import { cn } from "@/lib/utils";
+import DynamicAvatar from "./DynamicAvatar";
 
-export default function ChatBubble({ message }: { message: ChatMessage }) {
+type AvatarState = "idle" | "thinking" | "done";
+
+interface Props {
+  message: ChatMessage;
+  avatarState?: AvatarState;
+}
+
+export default function ChatBubble({ message, avatarState = "idle" }: Props) {
   const isUser = message.role === "user";
 
   return (
     <div className={cn("flex gap-3 animate-fade-in", isUser ? "flex-row-reverse" : "flex-row")}>
       {!isUser && (
-        <img
-          src={avatarImg}
-          alt="Travel Star"
-          className="w-8 h-8 rounded-full object-cover shrink-0 mt-1"
-          width={32}
-          height={32}
-          loading="lazy"
-        />
+        <DynamicAvatar state={avatarState} size="sm" className="mt-1" />
       )}
 
       <div className={cn("max-w-[80%] flex flex-col", isUser ? "items-end" : "items-start")}>
