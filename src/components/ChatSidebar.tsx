@@ -1,5 +1,7 @@
 import { MapPin, Globe, Star } from "lucide-react";
 import avatarImg from "@/assets/avatar.png";
+import WeatherWidget from "./WeatherWidget";
+import ExchangeRateWidget from "./ExchangeRateWidget";
 
 export default function ChatSidebar() {
   return (
@@ -13,6 +15,9 @@ export default function ChatSidebar() {
       </div>
 
       <div className="p-4 flex-1 overflow-y-auto space-y-4">
+        <WeatherWidget />
+        <ExchangeRateWidget />
+
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2">Specialties</h3>
           <ul className="space-y-2 text-sm">
@@ -26,8 +31,8 @@ export default function ChatSidebar() {
           <h3 className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2">Features</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex items-center gap-2"><Star className="w-4 h-4 text-secondary" /> Personalized tips</li>
-            <li className="flex items-center gap-2"><Star className="w-4 h-4 text-secondary" /> Voice input</li>
-            <li className="flex items-center gap-2"><Star className="w-4 h-4 text-secondary" /> Read aloud</li>
+            <li className="flex items-center gap-2"><Star className="w-4 h-4 text-secondary" /> Voice input (multilingual)</li>
+            <li className="flex items-center gap-2"><Star className="w-4 h-4 text-secondary" /> Read aloud (auto-language)</li>
           </ul>
         </div>
       </div>
