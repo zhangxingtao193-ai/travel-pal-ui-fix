@@ -85,9 +85,10 @@ export function speakText(text: string, lang?: string) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
 
-  // Strip markdown for cleaner speech
+  // Strip markdown and emoji for cleaner speech
   const clean = text
     .replace(/[#*_~`>|[\]()!]/g, "")
+    .replace(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu, "")
     .replace(/\n{2,}/g, ". ")
     .replace(/\n/g, " ")
     .replace(/\s{2,}/g, " ")
