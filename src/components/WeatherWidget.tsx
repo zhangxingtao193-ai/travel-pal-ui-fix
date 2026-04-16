@@ -78,19 +78,22 @@ export default function WeatherWidget() {
         </div>
       ) : (
         <div className="space-y-2">
-          {weatherData.map((w) => (
-            <div key={w.city} className="bg-sidebar-accent/30 rounded-lg p-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium">{w.city}</span>
-                <span className="text-xs font-bold text-sidebar-primary">{w.temp_c}°C</span>
+          {weatherData.map((w) => {
+            const cityMap: Record<string, string> = { "Hong Kong": t.hongKong, "Tokyo": t.tokyo };
+            return (
+              <div key={w.city} className="bg-sidebar-accent/30 rounded-lg p-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">{cityMap[w.city] ?? w.city}</span>
+                  <span className="text-xs font-bold text-sidebar-primary">{w.temp_c}°C</span>
+                </div>
+                <p className="text-[10px] text-sidebar-foreground/60 mt-0.5">{w.desc}</p>
+                <div className="flex items-center gap-3 mt-1 text-[10px] text-sidebar-foreground/50">
+                  <span className="flex items-center gap-0.5"><Droplets className="w-2.5 h-2.5" /> {w.humidity}%</span>
+                  <span className="flex items-center gap-0.5"><Wind className="w-2.5 h-2.5" /> {w.wind} km/h</span>
+                </div>
               </div>
-              <p className="text-[10px] text-sidebar-foreground/60 mt-0.5">{w.desc}</p>
-              <div className="flex items-center gap-3 mt-1 text-[10px] text-sidebar-foreground/50">
-                <span className="flex items-center gap-0.5"><Droplets className="w-2.5 h-2.5" /> {w.humidity}%</span>
-                <span className="flex items-center gap-0.5"><Wind className="w-2.5 h-2.5" /> {w.wind} km/h</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
