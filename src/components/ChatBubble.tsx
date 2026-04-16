@@ -3,6 +3,7 @@ import { speakText, detectLanguage } from "@/hooks/useSpeech";
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage } from "@/types/chat";
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/hooks/useLocale";
 import DynamicAvatar from "./DynamicAvatar";
 
 type AvatarState = "idle" | "thinking" | "done";
@@ -14,6 +15,7 @@ interface Props {
 
 export default function ChatBubble({ message, avatarState = "idle" }: Props) {
   const isUser = message.role === "user";
+  const { t } = useLocale();
 
   return (
     <div className={cn("flex gap-3 animate-fade-in", isUser ? "flex-row-reverse" : "flex-row")}>
@@ -30,22 +32,26 @@ export default function ChatBubble({ message, avatarState = "idle" }: Props) {
           <div className="bg-chat-bot text-chat-bot-foreground rounded-2xl rounded-bl-md px-4 py-2.5 text-sm prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{message.content}</ReactMarkdown>
 
-            {/* Travel image gallery - uniform small thumbnails */}
             {message.travelImages && message.travelImages.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1.5 not-prose">
-                {message.travelImages.map((img, i) => (
-                  <div key={i} className="relative overflow-hidden rounded-md w-[72px] h-[72px] flex-shrink-0">
-                    <img
-                      src={img.url}
-                      alt={img.label}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1 py-0.5">
-                      <span className="text-white text-[9px] leading-tight font-medium">{img.label}</span>
+                {message.travelImages.map((img, i) => {
+                  const localizedLabel = (t as Record<string, unknown>)[img.label] as string ?? img.label;
+                  return (
+                    <div key={i} className="relative overflow-hidden rounded-md w-[72px] h-[72px] flex-shrink-0">
+                      <img
+                        src={img.url}
+                        alt={localizedLabel}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1 py-0.5">
+                        <span className="text-white text-[9px] leading-tight font-medium">
+                          {img.emoji} {localizedLabel}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
