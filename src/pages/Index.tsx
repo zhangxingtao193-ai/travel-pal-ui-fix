@@ -103,6 +103,14 @@ export default function Index() {
     setActiveAssistantId(null);
   };
 
+  const handleImageClick = useCallback((img: TravelImageSet) => {
+    if (isLoading) return;
+    const dest = (t as unknown as Record<string, string>)[img.destination] ?? img.destination;
+    const category = (t as unknown as Record<string, string>)[img.label] ?? img.label;
+    const question = `${dest}${t.appTitle ? "的" : " "}${category}`;
+    handleSend(question);
+  }, [isLoading, t]);
+
   const handleClear = () => {
     setMessages([makeWelcome(t.welcomeMessage)]);
     setDoneMessageId(null);
