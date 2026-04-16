@@ -1,4 +1,5 @@
 import type { ChatMessage } from "@/types/chat";
+import { toast } from "@/hooks/use-toast";
 
 const FALLBACK_RESPONSES = [
   "I'd love to help with your travel plans! However, I'm having trouble connecting right now. Try again in a moment! 🌏",
@@ -41,6 +42,11 @@ export async function streamChatMessage(
     });
 
     if (!resp.ok || !resp.body) {
+      if (resp.status === 429) {
+        toast({ title: "Rate limited", description: "Too many requests. Please wait a moment and try again.", variant: "destructive" });
+      } else if (resp.status === 402) {
+        toast({ title: "Credits exhausted", description: "Please add funds to your workspace at Settings → Workspace → Usage.", variant: "destructive" });
+      }
       const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
       onDelta(fallback);
       onDone();
