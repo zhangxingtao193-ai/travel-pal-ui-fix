@@ -1,5 +1,6 @@
 export interface TravelImageSet {
-  label: string;
+  label: string; // locale key: "foodie" | "culture" | "nature" | "shopping" | "nightlife"
+  emoji: string;
   url: string;
 }
 
