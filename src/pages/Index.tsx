@@ -10,7 +10,7 @@ import { streamChatMessage } from "@/lib/chatApi";
 import { matchTravelImages } from "@/lib/travelImages";
 import { useTheme } from "@/hooks/useTheme";
 import { useLocale } from "@/hooks/useLocale";
-import type { ChatMessage, PreferenceChip } from "@/types/chat";
+import type { ChatMessage, PreferenceChip, TravelImageSet } from "@/types/chat";
 
 function makeWelcome(msg: string): ChatMessage {
   return { id: "welcome", role: "assistant", content: msg, timestamp: new Date() };
