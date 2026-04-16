@@ -44,7 +44,7 @@ export default function WeatherWidget() {
   const [weatherData, setWeatherData] = useState<WeatherData[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const refresh = async () => {
     setLoading(true);
@@ -112,7 +112,7 @@ export default function WeatherWidget() {
                   <span className="text-xs font-bold text-sidebar-primary">{w.temp_c}°C</span>
                 </div>
                 <p className="text-[10px] text-sidebar-foreground/60 mt-0.5">
-                  {WMO_DESC[w.weatherCode] ?? "N/A"}
+                  {(WMO_DESC[locale]?.[w.weatherCode] ?? WMO_DESC.en[w.weatherCode]) ?? "N/A"}
                 </p>
                 <div className="flex items-center gap-3 mt-1 text-[10px] text-sidebar-foreground/50">
                   <span className="flex items-center gap-0.5"><Droplets className="w-2.5 h-2.5" /> {w.humidity}%</span>
