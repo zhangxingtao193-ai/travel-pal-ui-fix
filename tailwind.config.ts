@@ -88,7 +88,6 @@ export default {
         "bounce-question": "bounce-question 0.8s ease-in-out infinite",
         "pop-in": "pop-in 0.4s ease-out forwards",
       },
-      },
     },
   },
   plugins: [require("tailwindcss-animate")],
