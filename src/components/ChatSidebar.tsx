@@ -2,7 +2,6 @@ import { MapPin, Globe, Star } from "lucide-react";
 import avatarImg from "@/assets/avatar.png";
 import WeatherWidget from "./WeatherWidget";
 import ExchangeRateWidget from "./ExchangeRateWidget";
-import CurrencyConverter from "./CurrencyConverter";
 import { useLocale } from "@/hooks/useLocale";
 
 export default function ChatSidebar() {
@@ -21,7 +20,7 @@ export default function ChatSidebar() {
       <div className="p-4 flex-1 overflow-y-auto space-y-4">
         <WeatherWidget />
         <ExchangeRateWidget />
-        <CurrencyConverter />
+        
 
         <div>
           <h3 className="text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 mb-2">{t.specialties}</h3>
