@@ -7,7 +7,7 @@ import PreferenceChips from "@/components/PreferenceChips";
 import TypingIndicator from "@/components/TypingIndicator";
 import DemoButton from "@/components/DemoButton";
 import { streamChatMessage } from "@/lib/chatApi";
-import { matchTravelImage } from "@/lib/travelImages";
+import { matchTravelImages } from "@/lib/travelImages";
 import { useTheme } from "@/hooks/useTheme";
 import { useLocale } from "@/hooks/useLocale";
 import type { ChatMessage, PreferenceChip } from "@/types/chat";
@@ -80,12 +80,12 @@ export default function Index() {
         );
       },
       () => {
-        // Match a built-in image based on user question + bot response
+        // Match built-in images based on user question + bot response
         const combinedText = text + " " + assistantContent;
-        const imageUrl = matchTravelImage(combinedText) ?? undefined;
+        const travelImages = matchTravelImages(combinedText) ?? undefined;
         setMessages((prev) =>
           prev.map((m) =>
-            m.id === assistantId ? { ...m, imageUrl } : m
+            m.id === assistantId ? { ...m, travelImages } : m
           )
         );
 
