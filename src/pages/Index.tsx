@@ -7,7 +7,7 @@ import PreferenceChips from "@/components/PreferenceChips";
 import TypingIndicator from "@/components/TypingIndicator";
 import DemoButton from "@/components/DemoButton";
 import { streamChatMessage } from "@/lib/chatApi";
-import { matchTravelImage } from "@/lib/travelImages";
+import { matchTravelImages } from "@/lib/travelImages";
 import { useTheme } from "@/hooks/useTheme";
 import { useLocale } from "@/hooks/useLocale";
 import type { ChatMessage, PreferenceChip } from "@/types/chat";
