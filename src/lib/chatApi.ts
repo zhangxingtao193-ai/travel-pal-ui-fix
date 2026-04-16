@@ -8,6 +8,7 @@ const FALLBACK_RESPONSES = [
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const CHAT_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/travel-chat` : null;
+const IMAGE_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/travel-image` : null;
 
 export async function streamChatMessage(
   messages: ChatMessage[],
@@ -112,5 +113,50 @@ export async function streamChatMessage(
     const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
     onDelta(fallback);
     onDone();
+  }
+}
+
+export async function generateTravelImage(responseText: string): Promise<string | null> {
+  if (!IMAGE_URL) return null;
+
+  try {
+    // Extract a concise image prompt from the response
+    const lines = responseText.split("\n").filter((l) => l.trim());
+    // Find bolded place names or first meaningful line
+    const places: string[] = [];
+    for (const line of lines) {
+      const matches = line.match(/\*\*([^*]+)\*\*/g);
+      if (matches) {
+        for (const m of matches) {
+          const name = m.replace(/\*\*/g, "").trim();
+          if (name.length > 2 && name.length < 60) places.push(name);
+        }
+      }
+    }
+    
+    // Build a prompt from top mentioned places or fall back to first heading
+    let prompt: string;
+    if (places.length > 0) {
+      prompt = places.slice(0, 3).join(", ");
+    } else {
+      const heading = lines.find((l) => l.startsWith("#"));
+      prompt = heading ? heading.replace(/^#+\s*/, "").replace(/[🇭🇰🇯🇵🌏✈️🗺️🍜🏛️🌿🛍️🌃]/g, "").trim() : "scenic travel destination";
+    }
+
+    const resp = await fetch(IMAGE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ prompt }),
+    });
+
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data.imageUrl ?? null;
+  } catch (e) {
+    console.error("Image generation error:", e);
+    return null;
   }
 }
