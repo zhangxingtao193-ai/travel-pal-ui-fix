@@ -156,6 +156,7 @@ export default function Index() {
               key={msg.id}
               message={msg}
               avatarState={msg.role === "assistant" ? getAvatarState(msg.id) : "idle"}
+              onImageClick={handleImageClick}
             />
           ))}
           {isLoading && messages[messages.length - 1]?.content === "" && <TypingIndicator />}
