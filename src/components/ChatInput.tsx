@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Send, Mic, MicOff } from "lucide-react";
 import { useSpeechRecognition, setInputLanguage, detectLanguage } from "@/hooks/useSpeech";
+import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -11,11 +12,11 @@ interface Props {
 export default function ChatInput({ onSend, disabled }: Props) {
   const [input, setInput] = useState("");
   const { isListening, startListening, stopListening } = useSpeechRecognition();
+  const { t } = useLocale();
 
   const handleSend = () => {
     const trimmed = input.trim();
     if (!trimmed || disabled) return;
-    // Detect language from typed text for TTS matching
     setInputLanguage(detectLanguage(trimmed));
     onSend(trimmed);
     setInput("");
@@ -39,7 +40,7 @@ export default function ChatInput({ onSend, disabled }: Props) {
     <div className="border-t border-border bg-card/80 backdrop-blur-sm px-4 py-3">
       {isListening && (
         <div className="mb-2 text-center">
-          <span className="text-xs text-destructive animate-pulse">🎙️ Listening...</span>
+          <span className="text-xs text-destructive animate-pulse">{t.listening}</span>
         </div>
       )}
       <div className="flex items-center gap-2">
@@ -51,7 +52,7 @@ export default function ChatInput({ onSend, disabled }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          placeholder="Ask in any language — 用中文、日本語、한국어..."
+          placeholder={t.inputPlaceholder}
           disabled={disabled}
           className="flex-1 bg-muted rounded-full px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/60 disabled:opacity-50"
         />
