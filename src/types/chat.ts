@@ -1,7 +1,8 @@
 export interface TravelImageSet {
-  label: string; // locale key: "foodie" | "culture" | "nature" | "shopping" | "nightlife"
+  label: string;   // locale key: "foodie" | "culture" | "nature" | "shopping" | "nightlife"
   emoji: string;
   url: string;
+  destination: string; // locale key: "hongKong" | "tokyo"
 }
 
 export interface ChatMessage {

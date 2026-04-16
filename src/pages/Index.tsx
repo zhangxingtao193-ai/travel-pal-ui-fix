@@ -10,7 +10,7 @@ import { streamChatMessage } from "@/lib/chatApi";
 import { matchTravelImages } from "@/lib/travelImages";
 import { useTheme } from "@/hooks/useTheme";
 import { useLocale } from "@/hooks/useLocale";
-import type { ChatMessage, PreferenceChip } from "@/types/chat";
+import type { ChatMessage, PreferenceChip, TravelImageSet } from "@/types/chat";
 
 function makeWelcome(msg: string): ChatMessage {
   return { id: "welcome", role: "assistant", content: msg, timestamp: new Date() };
@@ -18,7 +18,7 @@ function makeWelcome(msg: string): ChatMessage {
 
 export default function Index() {
   const theme = useTheme();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const [messages, setMessages] = useState<ChatMessage[]>([makeWelcome(t.welcomeMessage)]);
   const [isLoading, setIsLoading] = useState(false);
@@ -103,6 +103,20 @@ export default function Index() {
     setActiveAssistantId(null);
   };
 
+  const handleImageClick = useCallback((img: TravelImageSet) => {
+    if (isLoading) return;
+    const tr = t as unknown as Record<string, string>;
+    const dest = tr[img.destination] ?? img.destination;
+    const category = tr[img.label] ?? img.label;
+    // Build natural question per locale
+    const questions: Record<string, string> = {
+      en: `Recommend ${category.toLowerCase()} in ${dest}`,
+      zh: `推荐${dest}的${category}`,
+      ja: `${dest}の${category}をおすすめしてください`,
+    };
+    handleSend(questions[locale] ?? questions.en);
+  }, [isLoading, t, locale]);
+
   const handleClear = () => {
     setMessages([makeWelcome(t.welcomeMessage)]);
     setDoneMessageId(null);
@@ -142,6 +156,7 @@ export default function Index() {
               key={msg.id}
               message={msg}
               avatarState={msg.role === "assistant" ? getAvatarState(msg.id) : "idle"}
+              onImageClick={handleImageClick}
             />
           ))}
           {isLoading && messages[messages.length - 1]?.content === "" && <TypingIndicator />}
