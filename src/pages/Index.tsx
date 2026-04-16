@@ -6,7 +6,8 @@ import ChatInput from "@/components/ChatInput";
 import PreferenceChips from "@/components/PreferenceChips";
 import TypingIndicator from "@/components/TypingIndicator";
 import DemoButton from "@/components/DemoButton";
-import { streamChatMessage, generateTravelImage } from "@/lib/chatApi";
+import { streamChatMessage } from "@/lib/chatApi";
+import { matchTravelImage } from "@/lib/travelImages";
 import { useTheme } from "@/hooks/useTheme";
 import { useLocale } from "@/hooks/useLocale";
 import type { ChatMessage, PreferenceChip } from "@/types/chat";
@@ -27,7 +28,6 @@ export default function Index() {
   const [doneMessageId, setDoneMessageId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Update welcome message when locale changes
   useEffect(() => {
     setMessages((prev) => {
       const rest = prev.filter((m) => m.id !== "welcome");
@@ -79,28 +79,19 @@ export default function Index() {
           )
         );
       },
-      async () => {
+      () => {
+        // Match a built-in image based on content
+        const imageUrl = matchTravelImage(assistantContent) ?? undefined;
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === assistantId ? { ...m, imageUrl } : m
+          )
+        );
+
         setIsLoading(false);
         setActiveAssistantId(null);
         setDoneMessageId(assistantId);
         setTimeout(() => setDoneMessageId(null), 3000);
-
-        // Generate image for the response
-        if (assistantContent.length > 50) {
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId ? { ...m, imageLoading: true } : m
-            )
-          );
-          const imageUrl = await generateTravelImage(assistantContent);
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId
-                ? { ...m, imageLoading: false, imageUrl: imageUrl ?? undefined }
-                : m
-            )
-          );
-        }
       }
     );
   };
@@ -115,22 +106,6 @@ export default function Index() {
     setMessages([makeWelcome(t.welcomeMessage)]);
     setDoneMessageId(null);
     setActiveAssistantId(null);
-  };
-
-  const handleRegenImage = async (messageId: string, style: string) => {
-    const msg = messages.find((m) => m.id === messageId);
-    if (!msg) return;
-
-    setMessages((prev) =>
-      prev.map((m) => (m.id === messageId ? { ...m, imageLoading: true, imageUrl: undefined } : m))
-    );
-
-    const imageUrl = await generateTravelImage(msg.content, style);
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === messageId ? { ...m, imageLoading: false, imageUrl: imageUrl ?? undefined } : m
-      )
-    );
   };
 
   return (
@@ -166,7 +141,6 @@ export default function Index() {
               key={msg.id}
               message={msg}
               avatarState={msg.role === "assistant" ? getAvatarState(msg.id) : "idle"}
-              onRegenImage={handleRegenImage}
             />
           ))}
           {isLoading && messages[messages.length - 1]?.content === "" && <TypingIndicator />}

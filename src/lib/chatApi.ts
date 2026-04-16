@@ -8,7 +8,6 @@ const FALLBACK_RESPONSES = [
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const CHAT_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/travel-chat` : null;
-const IMAGE_URL = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/travel-image` : null;
 
 export async function streamChatMessage(
   messages: ChatMessage[],
@@ -90,7 +89,6 @@ export async function streamChatMessage(
       }
     }
 
-    // Flush remaining buffer
     if (textBuffer.trim()) {
       for (let raw of textBuffer.split("\n")) {
         if (!raw) continue;
@@ -113,49 +111,5 @@ export async function streamChatMessage(
     const fallback = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
     onDelta(fallback);
     onDone();
-  }
-}
-
-export async function generateTravelImage(responseText: string, style?: string): Promise<string | null> {
-  if (!IMAGE_URL) return null;
-
-  try {
-    const lines = responseText.split("\n").filter((l) => l.trim());
-    const places: string[] = [];
-    for (const line of lines) {
-      const matches = line.match(/\*\*([^*]+)\*\*/g);
-      if (matches) {
-        for (const m of matches) {
-          const name = m.replace(/\*\*/g, "").trim();
-          if (name.length > 2 && name.length < 60) places.push(name);
-        }
-      }
-    }
-    
-    let subject: string;
-    if (places.length > 0) {
-      subject = places.slice(0, 3).join(", ");
-    } else {
-      const heading = lines.find((l) => l.startsWith("#"));
-      subject = heading ? heading.replace(/^#+\s*/, "").replace(/[🇭🇰🇯🇵🌏✈️🗺️🍜🏛️🌿🛍️🌃]/g, "").trim() : "scenic travel destination";
-    }
-
-    const prompt = style ? `${subject}, ${style}` : subject;
-
-    const resp = await fetch(IMAGE_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-      },
-      body: JSON.stringify({ prompt }),
-    });
-
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    return data.imageUrl ?? null;
-  } catch (e) {
-    console.error("Image generation error:", e);
-    return null;
   }
 }
