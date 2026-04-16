@@ -30,16 +30,13 @@ export default function ChatBubble({ message, avatarState = "idle" }: Props) {
           <div className="bg-chat-bot text-chat-bot-foreground rounded-2xl rounded-bl-md px-4 py-2.5 text-sm prose prose-sm max-w-none dark:prose-invert">
             <ReactMarkdown>{message.content}</ReactMarkdown>
 
-            {/* Built-in travel image */}
             {message.imageUrl && (
-              <div className="mt-3">
+              <div className="mt-3 max-w-[280px]">
                 <img
                   src={message.imageUrl}
                   alt="Travel scene"
-                  className="rounded-lg max-w-full w-full shadow-md"
+                  className="rounded-lg w-full shadow-md"
                   loading="lazy"
-                  width={800}
-                  height={512}
                 />
               </div>
             )}
