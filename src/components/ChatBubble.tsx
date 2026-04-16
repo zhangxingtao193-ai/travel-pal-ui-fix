@@ -1,7 +1,7 @@
 import { Volume2 } from "lucide-react";
 import { speakText, detectLanguage } from "@/hooks/useSpeech";
 import ReactMarkdown from "react-markdown";
-import type { ChatMessage } from "@/types/chat";
+import type { ChatMessage, TravelImageSet } from "@/types/chat";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/hooks/useLocale";
 import DynamicAvatar from "./DynamicAvatar";
@@ -11,11 +11,14 @@ type AvatarState = "idle" | "thinking" | "done";
 interface Props {
   message: ChatMessage;
   avatarState?: AvatarState;
+  onImageClick?: (img: TravelImageSet) => void;
 }
 
-export default function ChatBubble({ message, avatarState = "idle" }: Props) {
+export default function ChatBubble({ message, avatarState = "idle", onImageClick }: Props) {
   const isUser = message.role === "user";
   const { t } = useLocale();
+
+  const getLabel = (key: string) => (t as unknown as Record<string, string>)[key] ?? key;
 
   return (
     <div className={cn("flex gap-3 animate-fade-in", isUser ? "flex-row-reverse" : "flex-row")}>
@@ -35,13 +38,17 @@ export default function ChatBubble({ message, avatarState = "idle" }: Props) {
             {message.travelImages && message.travelImages.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1.5 not-prose">
                 {message.travelImages.map((img, i) => {
-                  const localizedLabel = (t as unknown as Record<string, string>)[img.label] ?? img.label;
+                  const localizedLabel = getLabel(img.label);
                   return (
-                    <div key={i} className="relative overflow-hidden rounded-md w-[72px] h-[72px] flex-shrink-0">
+                    <div
+                      key={i}
+                      className="relative overflow-hidden rounded-md w-[72px] h-[72px] flex-shrink-0 cursor-pointer group"
+                      onClick={() => onImageClick?.(img)}
+                    >
                       <img
                         src={img.url}
                         alt={localizedLabel}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
                         loading="lazy"
                       />
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-1 py-0.5">

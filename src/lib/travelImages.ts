@@ -20,19 +20,19 @@ function hasKeyword(text: string, keywords: string[]): boolean {
 }
 
 const HK_IMAGES: TravelImageSet[] = [
-  { label: "foodie", emoji: "🍜", url: hkFoodImg },
-  { label: "culture", emoji: "🏛️", url: hkCultureImg },
-  { label: "nature", emoji: "🌿", url: hkNatureImg },
-  { label: "shopping", emoji: "🛍️", url: hkShoppingImg },
-  { label: "nightlife", emoji: "🌃", url: hkNightlifeImg },
+  { label: "foodie", emoji: "🍜", url: hkFoodImg, destination: "hongKong" },
+  { label: "culture", emoji: "🏛️", url: hkCultureImg, destination: "hongKong" },
+  { label: "nature", emoji: "🌿", url: hkNatureImg, destination: "hongKong" },
+  { label: "shopping", emoji: "🛍️", url: hkShoppingImg, destination: "hongKong" },
+  { label: "nightlife", emoji: "🌃", url: hkNightlifeImg, destination: "hongKong" },
 ];
 
 const JP_IMAGES: TravelImageSet[] = [
-  { label: "foodie", emoji: "🍜", url: jpFoodImg },
-  { label: "culture", emoji: "🏛️", url: jpCultureImg },
-  { label: "nature", emoji: "🌿", url: jpNatureImg },
-  { label: "shopping", emoji: "🛍️", url: jpShoppingImg },
-  { label: "nightlife", emoji: "🌃", url: jpNightlifeImg },
+  { label: "foodie", emoji: "🍜", url: jpFoodImg, destination: "tokyo" },
+  { label: "culture", emoji: "🏛️", url: jpCultureImg, destination: "tokyo" },
+  { label: "nature", emoji: "🌿", url: jpNatureImg, destination: "tokyo" },
+  { label: "shopping", emoji: "🛍️", url: jpShoppingImg, destination: "tokyo" },
+  { label: "nightlife", emoji: "🌃", url: jpNightlifeImg, destination: "tokyo" },
 ];
 
 export function matchTravelImages(text: string): TravelImageSet[] | null {
