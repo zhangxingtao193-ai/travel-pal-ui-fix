@@ -66,6 +66,8 @@ const translations: Record<UILocale, Translations> = {
     nightlife: "Nightlife",
     demoConversation: "Demo",
     amount: "Amount",
+    hongKong: "Hong Kong",
+    tokyo: "Tokyo",
   },
   zh: {
     appTitle: "旅行之星",
@@ -97,6 +99,8 @@ const translations: Record<UILocale, Translations> = {
     nightlife: "夜生活",
     demoConversation: "示例",
     amount: "金额",
+    hongKong: "香港",
+    tokyo: "东京",
   },
   ja: {
     appTitle: "トラベルスター",
@@ -128,6 +132,8 @@ const translations: Record<UILocale, Translations> = {
     nightlife: "ナイトライフ",
     demoConversation: "デモ",
     amount: "金額",
+    hongKong: "香港",
+    tokyo: "東京",
   },
 };
 
