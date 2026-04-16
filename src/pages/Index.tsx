@@ -6,7 +6,7 @@ import ChatInput from "@/components/ChatInput";
 import PreferenceChips from "@/components/PreferenceChips";
 import TypingIndicator from "@/components/TypingIndicator";
 import DemoButton from "@/components/DemoButton";
-import { streamChatMessage } from "@/lib/chatApi";
+import { streamChatMessage, generateTravelImage } from "@/lib/chatApi";
 import { useTheme } from "@/hooks/useTheme";
 import { useLocale } from "@/hooks/useLocale";
 import type { ChatMessage, PreferenceChip } from "@/types/chat";
@@ -79,11 +79,28 @@ export default function Index() {
           )
         );
       },
-      () => {
+      async () => {
         setIsLoading(false);
         setActiveAssistantId(null);
         setDoneMessageId(assistantId);
         setTimeout(() => setDoneMessageId(null), 3000);
+
+        // Generate image for the response
+        if (assistantContent.length > 50) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId ? { ...m, imageLoading: true } : m
+            )
+          );
+          const imageUrl = await generateTravelImage(assistantContent);
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? { ...m, imageLoading: false, imageUrl: imageUrl ?? undefined }
+                : m
+            )
+          );
+        }
       }
     );
   };
