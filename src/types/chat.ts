@@ -4,7 +4,6 @@ export interface ChatMessage {
   content: string;
   timestamp: Date;
   imageUrl?: string;
-  imageLoading?: boolean;
 }
 
 export type PreferenceChip = {
