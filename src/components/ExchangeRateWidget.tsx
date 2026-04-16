@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { RefreshCw } from "lucide-react";
 import { useLocale } from "@/hooks/useLocale";
 import { cn } from "@/lib/utils";
@@ -9,7 +9,8 @@ interface RateEntry {
   flag: string;
 }
 
-const CURRENCIES: { code: string; flag: string }[] = [
+const ALL_CURRENCIES: { code: string; flag: string }[] = [
+  { code: "USD", flag: "🇺🇸" },
   { code: "HKD", flag: "🇭🇰" },
   { code: "JPY", flag: "🇯🇵" },
   { code: "EUR", flag: "🇪🇺" },
@@ -21,36 +22,37 @@ const CURRENCIES: { code: string; flag: string }[] = [
 ];
 
 export default function ExchangeRateWidget() {
+  const [base, setBase] = useState("USD");
   const [rates, setRates] = useState<RateEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const { t } = useLocale();
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const resp = await fetch("https://open.er-api.com/v6/latest/USD");
+      const resp = await fetch(`https://open.er-api.com/v6/latest/${base}`);
       if (!resp.ok) throw new Error();
       const data = await resp.json();
       const r = data.rates;
       if (!r) throw new Error();
       setRates(
-        CURRENCIES.filter((c) => r[c.code]).map((c) => ({
-          code: c.code,
-          rate: r[c.code],
-          flag: c.flag,
-        }))
+        ALL_CURRENCIES
+          .filter((c) => c.code !== base && r[c.code])
+          .map((c) => ({ code: c.code, rate: r[c.code], flag: c.flag }))
       );
       setLastUpdated(new Date());
     } catch { /* keep existing */ }
     setLoading(false);
-  };
+  }, [base]);
 
   useEffect(() => {
     refresh();
     const interval = setInterval(refresh, 30 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [refresh]);
+
+  const baseFlag = ALL_CURRENCIES.find((c) => c.code === base)?.flag ?? "";
 
   return (
     <div>
@@ -68,7 +70,20 @@ export default function ExchangeRateWidget() {
         </button>
       </div>
 
-      <p className="text-[10px] text-sidebar-foreground/40 mb-1.5">{t.baseCurrency}</p>
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <span className="text-[10px] text-sidebar-foreground/40">Base:</span>
+        <select
+          value={base}
+          onChange={(e) => setBase(e.target.value)}
+          className="text-[10px] bg-sidebar-accent/30 text-sidebar-foreground rounded px-1.5 py-0.5 border-none outline-none cursor-pointer"
+        >
+          {ALL_CURRENCIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.flag} {t.currencyNames[c.code] ?? c.code}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {loading && rates.length === 0 ? (
         <div className="space-y-1">
