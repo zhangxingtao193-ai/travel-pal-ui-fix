@@ -117,6 +117,22 @@ export default function Index() {
     setActiveAssistantId(null);
   };
 
+  const handleRegenImage = async (messageId: string, style: string) => {
+    const msg = messages.find((m) => m.id === messageId);
+    if (!msg) return;
+
+    setMessages((prev) =>
+      prev.map((m) => (m.id === messageId ? { ...m, imageLoading: true, imageUrl: undefined } : m))
+    );
+
+    const imageUrl = await generateTravelImage(msg.content, style);
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === messageId ? { ...m, imageLoading: false, imageUrl: imageUrl ?? undefined } : m
+      )
+    );
+  };
+
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       <div className="hidden md:block">
@@ -150,6 +166,7 @@ export default function Index() {
               key={msg.id}
               message={msg}
               avatarState={msg.role === "assistant" ? getAvatarState(msg.id) : "idle"}
+              onRegenImage={handleRegenImage}
             />
           ))}
           {isLoading && messages[messages.length - 1]?.content === "" && <TypingIndicator />}
