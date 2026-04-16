@@ -69,6 +69,11 @@ const translations: Record<UILocale, Translations> = {
     amount: "Amount",
     hongKong: "Hong Kong",
     tokyo: "Tokyo",
+    currencyNames: {
+      USD: "US Dollar", HKD: "HK Dollar", JPY: "Japanese Yen", EUR: "Euro",
+      GBP: "British Pound", CNY: "Chinese Yuan", KRW: "Korean Won",
+      THB: "Thai Baht", SGD: "Singapore Dollar", AUD: "Australian Dollar", TWD: "Taiwan Dollar",
+    },
   },
   zh: {
     appTitle: "旅行之星",
@@ -102,6 +107,11 @@ const translations: Record<UILocale, Translations> = {
     amount: "金额",
     hongKong: "香港",
     tokyo: "东京",
+    currencyNames: {
+      USD: "美元", HKD: "港币", JPY: "日元", EUR: "欧元",
+      GBP: "英镑", CNY: "人民币", KRW: "韩元",
+      THB: "泰铢", SGD: "新加坡元", AUD: "澳元", TWD: "新台币",
+    },
   },
   ja: {
     appTitle: "トラベルスター",
@@ -135,6 +145,11 @@ const translations: Record<UILocale, Translations> = {
     amount: "金額",
     hongKong: "香港",
     tokyo: "東京",
+    currencyNames: {
+      USD: "米ドル", HKD: "香港ドル", JPY: "日本円", EUR: "ユーロ",
+      GBP: "英ポンド", CNY: "中国元", KRW: "韓国ウォン",
+      THB: "タイバーツ", SGD: "シンガポールドル", AUD: "豪ドル", TWD: "台湾ドル",
+    },
   },
 };
 
