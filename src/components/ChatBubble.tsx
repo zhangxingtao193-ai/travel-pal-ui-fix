@@ -1,5 +1,5 @@
 import { Volume2 } from "lucide-react";
-import { speakText } from "@/hooks/useSpeech";
+import { speakText, detectLanguage } from "@/hooks/useSpeech";
 import ReactMarkdown from "react-markdown";
 import type { ChatMessage } from "@/types/chat";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,7 @@ export default function ChatBubble({ message, avatarState = "idle" }: Props) {
         )}
         {!isUser && (
           <button
-            onClick={() => speakText(message.content)}
+            onClick={() => speakText(message.content, detectLanguage(message.content))}
             className="mt-2 p-1 rounded hover:bg-foreground/10 transition-colors"
             title="Read aloud"
           >
